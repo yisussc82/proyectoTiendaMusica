@@ -23,10 +23,10 @@ it('relaciones 1 a n', function () {
 
 it('relación n a n: usuarios y roles', function () {
     $admin = Role::create(['name' => Role::ADMIN]);
-    $manager = Role::create(['name' => Role::MANAGER]);
+    $catalog = Role::create(['name' => Role::CATALOG]);
     $user = User::factory()->create();
 
-    $user->roles()->attach([$admin->id, $manager->id]);
+    $user->roles()->attach([$admin->id, $catalog->id]);
 
     expect($user->roles)->toHaveCount(2)
         ->and($admin->users->first()->is($user))->toBeTrue()

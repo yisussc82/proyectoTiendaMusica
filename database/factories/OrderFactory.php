@@ -39,6 +39,6 @@ class OrderFactory extends Factory
     {
         $status = $status instanceof OrderStatus ? $status : OrderStatus::from($status);
 
-        return in_array($status, [OrderStatus::Paid, OrderStatus::Shipped, OrderStatus::Delivered]);
+        return in_array($status, [OrderStatus::Paid, OrderStatus::Preparing, OrderStatus::Shipped, OrderStatus::Delivered]);
     }
 }

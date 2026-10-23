@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
+use LogicException;
 
 #[Fillable([
     'user_id', 'order_number', 'status', 'shipping_cost', 'total',
@@ -70,5 +72,64 @@ class Order extends Model
         $itemsTotal = $this->items()->get()->sum(fn (OrderItem $item) => $item->subtotal());
 
         $this->update(['total' => round($itemsTotal + $this->shipping_cost, 2)]);
+    }
+
+    /**
+     * Confirma el pedido y descuenta el stock de cada línea.
+     * Todo dentro de una transacción: si falta stock de un producto, no se descuenta nada.
+     */
+    public function confirm(): void
+    {
+        DB::transaction(function () {
+            $order = self::lockForUpdate()->findOrFail($this->id); // bloquea el pedido mientras se modifica
+
+            if ($order->status !== OrderStatus::Pending) {
+                throw new LogicException('Solo se puede confirmar un pedido pendiente.');
+            }
+
+            foreach ($order->items as $item) {
+                $product = Product::lockForUpdate()->findOrFail($item->product_id);
+
+                if ($product->stock < $item->quantity) {
+                    throw new LogicException("No hay stock suficiente de {$product->name}.");
+                }
+
+                $product->decrement('stock', $item->quantity);
+            }
+
+            $order->update(['status' => OrderStatus::Confirmed]);
+        });
+
+        $this->refresh();
+    }
+
+    /**
+     * Cancela el pedido y repone el stock una sola vez.
+     * Si ya estaba cancelado no hace nada; si ya se envió, no se puede cancelar.
+     */
+    public function cancel(): void
+    {
+        DB::transaction(function () {
+            $order = self::lockForUpdate()->findOrFail($this->id);
+
+            if ($order->status === OrderStatus::Cancelled) {
+                return; // ya cancelado: el stock no se repone dos veces
+            }
+
+            if (in_array($order->status, [OrderStatus::Shipped, OrderStatus::Delivered])) {
+                throw new LogicException('No se puede cancelar un pedido ya enviado.');
+            }
+
+            // Un pedido pendiente aún no había descontado stock
+            if ($order->status !== OrderStatus::Pending) {
+                foreach ($order->items as $item) {
+                    Product::withTrashed()->whereKey($item->product_id)->increment('stock', $item->quantity);
+                }
+            }
+
+            $order->update(['status' => OrderStatus::Cancelled]);
+        });
+
+        $this->refresh();
     }
 }

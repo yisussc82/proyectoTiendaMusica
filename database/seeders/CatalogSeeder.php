@@ -11,7 +11,6 @@ use Illuminate\Support\Str;
 
 class CatalogSeeder extends Seeder
 {
-    /** Categoría padre => [subcategoría => nombre del tipo de producto] */
     private const CATALOG = [
         'Guitarras' => ['Eléctricas' => 'Guitarra eléctrica', 'Acústicas' => 'Guitarra acústica', 'Clásicas' => 'Guitarra clásica'],
         'Bajos' => ['Bajos eléctricos' => 'Bajo eléctrico', 'Bajos acústicos' => 'Bajo acústico'],
@@ -28,7 +27,6 @@ class CatalogSeeder extends Seeder
             foreach ($children as $childName => $productType) {
                 $child = $parent->children()->create(['name' => $childName, 'slug' => Str::slug($childName)]);
 
-                // 6 productos por subcategoría, cada uno con 3 imágenes (la primera es la principal)
                 Product::factory(6)
                     ->for($child)
                     ->state(fn (array $a) => ['name' => "{$productType} {$a['name']}"])
