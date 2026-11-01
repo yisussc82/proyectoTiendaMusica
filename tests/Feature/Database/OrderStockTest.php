@@ -14,7 +14,7 @@ it('descuenta el stock al confirmar y lo repone una sola vez al cancelar', funct
         ->and($order->status)->toBe(OrderStatus::Confirmed);
 
     $order->cancel();
-    $order->cancel(); // la segunda cancelación no repone otra vez
+    $order->cancel();
     expect($product->fresh()->stock)->toBe(10)
         ->and($order->status)->toBe(OrderStatus::Cancelled);
 });
@@ -28,6 +28,6 @@ it('no descuenta nada si falta stock de algún producto', function () {
 
     expect(fn () => $order->confirm())->toThrow(LogicException::class);
 
-    expect($withStock->fresh()->stock)->toBe(5) // la transacción deshace todo
+    expect($withStock->fresh()->stock)->toBe(5)
         ->and($order->fresh()->status)->toBe(OrderStatus::Pending);
 });

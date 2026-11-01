@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Pivote n:n entre usuarios y roles.
-     */
     public function up(): void
     {
         Schema::create('role_user', function (Blueprint $table) {

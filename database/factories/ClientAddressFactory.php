@@ -9,13 +9,15 @@ class ClientAddressFactory extends Factory
 {
     public function definition(): array
     {
+        $province = fake()->randomElement(array_keys(config('provinces')));
+
         return [
             'client_id' => Client::factory(),
             'address_line_1' => fake()->streetAddress(),
             'address_line_2' => fake()->optional()->numerify('Piso #, Puerta #'),
             'city' => fake()->city(),
-            'province' => fake()->state(),
-            'postal_code' => fake()->numerify('#####'),
+            'province' => $province,
+            'postal_code' => config('provinces')[$province].fake()->numerify('###'),
             'is_default' => false,
         ];
     }

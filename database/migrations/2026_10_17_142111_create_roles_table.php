@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Roles de la aplicación: admin, manager, employee, customer, guest...
-     */
     public function up(): void
     {
         Schema::create('roles', function (Blueprint $table) {

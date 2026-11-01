@@ -31,8 +31,6 @@ class Product extends Model
         ];
     }
 
-    // ---------- Relaciones ----------
-
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
@@ -60,7 +58,6 @@ class Product extends Model
             ->withTimestamps();
     }
 
-    /** Usuarios que tienen el producto en su lista de deseos. */
     public function wishlistedBy(): BelongsToMany
     {
         return $this->belongsToMany(User::class)
@@ -68,9 +65,6 @@ class Product extends Model
             ->withTimestamps();
     }
 
-    // ---------- Atributos calculados ----------
-
-    /** $product->final_price: precio con descuento si lo hay. */
     protected function finalPrice(): Attribute
     {
         return Attribute::get(fn () => $this->discount_price ?? $this->price);

@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * (relación 1:1 con users).
-     */
     public function up(): void
     {
         Schema::create('clients', function (Blueprint $table) {

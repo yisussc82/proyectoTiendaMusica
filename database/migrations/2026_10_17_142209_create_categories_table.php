@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * (relación 1:n consigo misma mediante parent_id)
-     */
     public function up(): void
     {
         Schema::create('categories', function (Blueprint $table) {

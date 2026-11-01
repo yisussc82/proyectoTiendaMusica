@@ -33,8 +33,6 @@ class Order extends Model
         ];
     }
 
-    // ---------- Relaciones ----------
-
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -45,18 +43,14 @@ class Order extends Model
         return $this->hasMany(OrderItem::class);
     }
 
-    /** n:n con productos a través de order_items (con columnas extra en la pivote). */
     public function products(): BelongsToMany
     {
         return $this->belongsToMany(Product::class, 'order_items')
             ->withPivot('name_at_sale', 'price_at_sale', 'quantity')
             ->withTimestamps()
-            ->withTrashed(); // un pedido antiguo sigue mostrando productos borrados
+            ->withTrashed();
     }
 
-    // ---------- Lógica ----------
-
-    /** Añade un producto al pedido copiando su nombre y precio actuales. */
     public function addProduct(Product $product, int $quantity = 1): void
     {
         $this->products()->attach($product->id, [
@@ -66,7 +60,6 @@ class Order extends Model
         ]);
     }
 
-    /** Recalcula el total a partir de las líneas del pedido + gastos de envío. */
     public function recalculateTotal(): void
     {
         $itemsTotal = $this->items()->get()->sum(fn (OrderItem $item) => $item->subtotal());
@@ -74,14 +67,10 @@ class Order extends Model
         $this->update(['total' => round($itemsTotal + $this->shipping_cost, 2)]);
     }
 
-    /**
-     * Confirma el pedido y descuenta el stock de cada línea.
-     * Todo dentro de una transacción: si falta stock de un producto, no se descuenta nada.
-     */
     public function confirm(): void
     {
         DB::transaction(function () {
-            $order = self::lockForUpdate()->findOrFail($this->id); // bloquea el pedido mientras se modifica
+            $order = self::lockForUpdate()->findOrFail($this->id);
 
             if ($order->status !== OrderStatus::Pending) {
                 throw new LogicException('Solo se puede confirmar un pedido pendiente.');
@@ -103,24 +92,19 @@ class Order extends Model
         $this->refresh();
     }
 
-    /**
-     * Cancela el pedido y repone el stock una sola vez.
-     * Si ya estaba cancelado no hace nada; si ya se envió, no se puede cancelar.
-     */
     public function cancel(): void
     {
         DB::transaction(function () {
             $order = self::lockForUpdate()->findOrFail($this->id);
 
             if ($order->status === OrderStatus::Cancelled) {
-                return; // ya cancelado: el stock no se repone dos veces
+                return;
             }
 
             if (in_array($order->status, [OrderStatus::Shipped, OrderStatus::Delivered])) {
                 throw new LogicException('No se puede cancelar un pedido ya enviado.');
             }
 
-            // Un pedido pendiente aún no había descontado stock
             if ($order->status !== OrderStatus::Pending) {
                 foreach ($order->items as $item) {
                     Product::withTrashed()->whereKey($item->product_id)->increment('stock', $item->quantity);

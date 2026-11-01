@@ -6,10 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Lista de deseos: pivote n:n entre usuarios y productos.
-     * Columna extra: notify_on_discount (avisar al usuario si el producto baja de precio).
-     */
     public function up(): void
     {
         Schema::create('product_user', function (Blueprint $table) {

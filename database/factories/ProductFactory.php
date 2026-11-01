@@ -18,7 +18,7 @@ class ProductFactory extends Factory
             'category_id' => Category::factory(),
             'brand' => $brand,
             'name' => $brand.' '.fake()->bothify('??-###'),
-            // Las closures se evalúan al final, así usan el "name" definitivo aunque un state lo cambie
+
             'slug' => fn (array $a) => Str::slug($a['name']).'-'.fake()->unique()->numerify('####'),
             'sku' => fake()->unique()->bothify('SKU-#####'),
             'description' => '<p>'.implode('</p><p>', fake()->paragraphs(2)).'</p>',

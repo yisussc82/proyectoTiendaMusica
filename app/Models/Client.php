@@ -30,7 +30,6 @@ class Client extends Model
         return $this->hasOne(ClientAddress::class)->where('is_default', true);
     }
 
-    /** $client->full_name */
     protected function fullName(): Attribute
     {
         return Attribute::get(fn () => "{$this->first_name} {$this->last_name}");

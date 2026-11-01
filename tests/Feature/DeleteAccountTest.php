@@ -12,7 +12,6 @@ test('user accounts can be deleted', function () {
         ->set('password', 'password')
         ->call('deleteUser');
 
-    // User usa SoftDeletes: la cuenta queda borrada lógicamente, no desaparece de la tabla
     expect($user->fresh()->trashed())->toBeTrue();
 })->skip(function () {
     return ! Features::hasAccountDeletionFeatures();

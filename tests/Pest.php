@@ -44,7 +44,18 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-function something()
+function userWithRole(string $role): App\Models\User
 {
-    // ..
+    $user = App\Models\User::factory()->create();
+    $user->roles()->attach(App\Models\Role::firstOrCreate(['name' => $role]));
+
+    return $user;
+}
+
+function customer(): App\Models\User
+{
+    $user = userWithRole(App\Models\Role::CUSTOMER);
+    App\Models\Client::factory()->for($user)->create();
+
+    return $user->fresh();
 }

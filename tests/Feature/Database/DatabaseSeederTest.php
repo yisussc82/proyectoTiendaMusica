@@ -7,7 +7,6 @@ use App\Models\Role;
 use App\Models\User;
 
 it('la base de datos se reconstruye y se puebla desde cero', function () {
-    // RefreshDatabase ya ha ejecutado todas las migraciones sobre una base de datos vacía
     $this->seed();
 
     expect(Role::count())->toBe(5)

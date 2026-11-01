@@ -7,11 +7,10 @@ use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents; // al sembrar no se disparan eventos (ni emails, ni listeners)
+    use WithoutModelEvents;
 
     public function run(): void
     {
-        // Semilla fija: cada "migrate:fresh --seed" genera exactamente los mismos datos
         fake()->seed(2026);
 
         $this->call([

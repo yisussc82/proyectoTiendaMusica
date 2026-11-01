@@ -6,11 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Líneas de pedido: pivote n:n entre pedidos y productos con columnas extra.
-     * Nombre y precio se copian en el momento de la venta para que el pedido
-     * no cambie si después se modifica el producto.
-     */
     public function up(): void
     {
         Schema::create('order_items', function (Blueprint $table) {
@@ -22,7 +17,7 @@ return new class extends Migration
             $table->unsignedInteger('quantity');
             $table->timestamps();
 
-            $table->unique(['order_id', 'product_id']); // un producto una sola vez por pedido
+            $table->unique(['order_id', 'product_id']);
         });
     }
 

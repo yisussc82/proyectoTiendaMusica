@@ -9,11 +9,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 #[Fillable(['name'])]
 class Role extends Model
 {
-    public const ADMIN = 'admin';         // administración: control total
-    public const CATALOG = 'catalog';     // catálogo: productos, categorías e imágenes
-    public const WAREHOUSE = 'warehouse'; // almacén: stock, preparación y envío de pedidos
-    public const SUPPORT = 'support';     // atención al cliente: consulta clientes y pedidos
-    public const CUSTOMER = 'customer';   // cliente: compra en la tienda
+    public const ADMIN = 'admin';
+    public const CATALOG = 'catalog';
+    public const WAREHOUSE = 'warehouse';
+    public const SUPPORT = 'support';
+    public const CUSTOMER = 'customer';
 
     public const ALL = [self::ADMIN, self::CATALOG, self::WAREHOUSE, self::SUPPORT, self::CUSTOMER];
 

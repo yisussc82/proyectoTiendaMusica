@@ -38,7 +38,6 @@ it('relación n a n con columnas extra en la pivote: pedidos y productos', funct
     $cable = Product::factory()->create(['price' => 15, 'discount_price' => null]);
     $order = Order::factory()->create(['shipping_cost' => 5]);
 
-    // Se rellenan las columnas extra desde el código
     $order->addProduct($guitar, 2);
     $order->addProduct($cable, 1);
     $order->recalculateTotal();
@@ -48,5 +47,5 @@ it('relación n a n con columnas extra en la pivote: pedidos y productos', funct
     expect($pivot->name_at_sale)->toBe($guitar->name)
         ->and((float) $pivot->price_at_sale)->toBe(100.0)
         ->and((int) $pivot->quantity)->toBe(2)
-        ->and((float) $order->total)->toBe(220.0); // 200 + 15 + 5 de envío
+        ->and((float) $order->total)->toBe(220.0);
 });

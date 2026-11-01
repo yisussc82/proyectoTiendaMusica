@@ -13,7 +13,6 @@ class OrderSeeder extends Seeder
     {
         $products = Product::all();
 
-        // Cada cliente hace entre 0 y 3 pedidos
         User::has('client')->with('client.defaultAddress')->get()->each(function (User $user) use ($products) {
             $address = $user->client->defaultAddress;
 
@@ -27,7 +26,6 @@ class OrderSeeder extends Seeder
                     'shipping_postal_code' => $address->postal_code,
                 ])
                 ->each(function (Order $order) use ($products) {
-                    // 1-4 productos por pedido; addProduct() rellena las columnas extra de la pivote
                     foreach (fake()->randomElements($products->all(), fake()->numberBetween(1, 4)) as $product) {
                         $order->addProduct($product, fake()->numberBetween(1, 3));
                     }

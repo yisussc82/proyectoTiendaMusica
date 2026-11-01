@@ -5,8 +5,6 @@ use App\Models\Product;
 use App\Models\User;
 use Illuminate\Database\QueryException;
 
-// ---------- Pedido ↔ Producto (order_items: name_at_sale, price_at_sale, quantity) ----------
-
 it('al añadir un producto al pedido se guardan nombre, precio y cantidad en la pivote', function () {
     $product = Product::factory()->create(['price' => 100, 'discount_price' => 80]);
     $order = Order::factory()->create();
@@ -15,7 +13,7 @@ it('al añadir un producto al pedido se guardan nombre, precio y cantidad en la 
 
     $pivot = $order->products()->first()->pivot;
     expect($pivot->name_at_sale)->toBe($product->name)
-        ->and((float) $pivot->price_at_sale)->toBe(80.0) // usa el precio con descuento
+        ->and((float) $pivot->price_at_sale)->toBe(80.0)
         ->and((int) $pivot->quantity)->toBe(2);
 });
 
@@ -26,7 +24,7 @@ it('calcula el total del pedido a partir de la pivote', function () {
 
     $order->recalculateTotal();
 
-    expect((float) $order->total)->toBe(235.0); // 200 + 30 + 5 de envío
+    expect((float) $order->total)->toBe(235.0);
 });
 
 it('cambiar el precio de un producto no altera los pedidos ya hechos', function () {
@@ -50,8 +48,6 @@ it('un pedido sigue mostrando productos borrados (soft delete)', function () {
         ->and($order->items()->first()->product)->not->toBeNull();
 });
 
-// ---------- Carrito (cart_items: quantity) ----------
-
 it('gestiona la cantidad del carrito desde la pivote', function () {
     $user = User::factory()->create();
     $product = Product::factory()->create();
@@ -73,8 +69,6 @@ it('no permite el mismo producto dos veces en el carrito', function () {
 
     expect(fn () => $user->cart()->attach($product->id))->toThrow(QueryException::class);
 });
-
-// ---------- Lista de deseos (product_user: notify_on_discount) ----------
 
 it('filtra por la columna extra de la lista de deseos', function () {
     $product = Product::factory()->create();

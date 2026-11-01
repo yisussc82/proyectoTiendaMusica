@@ -15,6 +15,19 @@
                     <x-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
+                    @if (Auth::user()->hasRole(App\Models\Role::CUSTOMER))
+                        <x-nav-link href="{{ route('account.addresses.index') }}" :active="request()->routeIs('account.addresses.*')">
+                            {{ __('My addresses') }}
+                        </x-nav-link>
+                        <x-nav-link href="{{ route('account.orders.index') }}" :active="request()->routeIs('account.orders.*')">
+                            {{ __('My orders') }}
+                        </x-nav-link>
+                    @endif
+                    @can('viewAny', App\Models\Order::class)
+                        <x-nav-link href="{{ route('panel.orders.index') }}" :active="request()->routeIs('panel.orders.*')">
+                            {{ __('Orders') }}
+                        </x-nav-link>
+                    @endcan
                 </div>
             </div>
 
@@ -142,6 +155,19 @@
             <x-responsive-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+            @if (Auth::user()->hasRole(App\Models\Role::CUSTOMER))
+                <x-responsive-nav-link href="{{ route('account.addresses.index') }}" :active="request()->routeIs('account.addresses.*')">
+                    {{ __('My addresses') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link href="{{ route('account.orders.index') }}" :active="request()->routeIs('account.orders.*')">
+                    {{ __('My orders') }}
+                </x-responsive-nav-link>
+            @endif
+            @can('viewAny', App\Models\Order::class)
+                <x-responsive-nav-link href="{{ route('panel.orders.index') }}" :active="request()->routeIs('panel.orders.*')">
+                    {{ __('Orders') }}
+                </x-responsive-nav-link>
+            @endcan
         </div>
 
         <!-- Responsive Settings Options -->

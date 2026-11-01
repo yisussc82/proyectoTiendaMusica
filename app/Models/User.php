@@ -16,10 +16,8 @@ use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    // Jetstream: tokens de la API (Sanctum), foto de perfil y doble factor
     use HasApiTokens, HasProfilePhoto, TwoFactorAuthenticatable;
 
-    /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, SoftDeletes;
 
     protected $fillable = [
@@ -48,8 +46,6 @@ class User extends Authenticatable
         ];
     }
 
-    // ---------- Relaciones ----------
-
     public function client(): HasOne
     {
         return $this->hasOne(Client::class);
@@ -65,7 +61,6 @@ class User extends Authenticatable
         return $this->hasMany(Order::class);
     }
 
-    /** Carrito: n:n con productos y columna extra "quantity". */
     public function cart(): BelongsToMany
     {
         return $this->belongsToMany(Product::class, 'cart_items')
@@ -73,7 +68,6 @@ class User extends Authenticatable
             ->withTimestamps();
     }
 
-    /** Lista de deseos: n:n con productos y columna extra "notify_on_discount". */
     public function wishlist(): BelongsToMany
     {
         return $this->belongsToMany(Product::class)
@@ -81,9 +75,6 @@ class User extends Authenticatable
             ->withTimestamps();
     }
 
-    // ---------- Helpers ----------
-
-    /** Ej.: $user->hasRole('admin') o $user->hasRole('admin', 'catalog') */
     public function hasRole(string ...$roles): bool
     {
         return $this->roles->whereIn('name', $roles)->isNotEmpty();

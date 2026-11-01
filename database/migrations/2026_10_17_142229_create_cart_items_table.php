@@ -6,10 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Carrito: pivote n:n entre usuarios y productos con la cantidad como columna extra.
-     * El precio no se guarda aquí: se usa el precio actual y se congela al crear el pedido.
-     */
     public function up(): void
     {
         Schema::create('cart_items', function (Blueprint $table) {
@@ -19,7 +15,7 @@ return new class extends Migration
             $table->unsignedInteger('quantity')->default(1);
             $table->timestamps();
 
-            $table->unique(['user_id', 'product_id']); // un producto una sola vez por carrito
+            $table->unique(['user_id', 'product_id']);
         });
     }
 

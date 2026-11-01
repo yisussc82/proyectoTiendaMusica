@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Direcciones de envío de un cliente (1:n).
-     */
     public function up(): void
     {
         Schema::create('client_addresses', function (Blueprint $table) {

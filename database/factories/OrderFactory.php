@@ -15,7 +15,7 @@ class OrderFactory extends Factory
             'order_number' => 'MS-'.fake()->unique()->numerify('######'),
             'status' => fake()->randomElement(OrderStatus::cases()),
             'shipping_cost' => fake()->randomElement([0, 4.95, 9.95]),
-            'total' => 0, // se recalcula al añadir productos: $order->recalculateTotal()
+            'total' => 0,
 
             'shipping_address_line_1' => fake()->streetAddress(),
             'shipping_address_line_2' => null,
@@ -23,7 +23,6 @@ class OrderFactory extends Factory
             'shipping_province' => fake()->state(),
             'shipping_postal_code' => fake()->numerify('#####'),
 
-            // Solo los pedidos pagados (o posteriores) tienen datos de pago
             'payment_method' => fn (array $a) => $this->isPaid($a['status']) ? 'paypal' : null,
             'payment_reference' => fn (array $a) => $this->isPaid($a['status']) ? fake()->bothify('PAYID-##########') : null,
             'paid_at' => fn (array $a) => $this->isPaid($a['status']) ? fake()->dateTimeBetween('-6 months') : null,
