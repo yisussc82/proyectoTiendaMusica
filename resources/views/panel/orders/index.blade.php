@@ -23,6 +23,7 @@
                             <th class="px-4 py-3">{{ __('Date') }}</th>
                             <th class="px-4 py-3">{{ __('Status') }}</th>
                             <th class="px-4 py-3 text-right">{{ __('Total') }}</th>
+                            <th class="px-4 py-3">{{ __('Actions') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y">
@@ -31,12 +32,36 @@
                                 <td class="px-4 py-3">{{ $order->order_number }}</td>
                                 <td class="px-4 py-3">{{ $order->user->name }}</td>
                                 <td class="px-4 py-3">{{ $order->created_at->format('d/m/Y') }}</td>
-                                <td class="px-4 py-3">{{ __(ucfirst($order->status->value)) }}</td>
+                                <td class="px-4 py-3">{{ $order->status->label() }}</td>
                                 <td class="px-4 py-3 text-right"><x-price :amount="$order->total" /></td>
+                                <td class="px-4 py-3">
+                                    <div class="flex items-center gap-3">
+                                        @can('updateStatus', $order)
+                                            @if ($order->status->nextSteps())
+                                                <form method="POST" action="{{ route('panel.orders.status', $order) }}" class="flex items-center gap-2">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <select name="status" class="text-sm border-gray-300 rounded-md">
+                                                        @foreach ($order->status->nextSteps() as $status)
+                                                            <option value="{{ $status->value }}">{{ $status->label() }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                    <x-secondary-button type="submit">{{ __('Change') }}</x-secondary-button>
+                                                </form>
+                                            @endif
+                                        @endcan
+                                        @can('cancel', $order)
+                                            <form method="POST" action="{{ route('panel.orders.cancel', $order) }}">
+                                                @csrf
+                                                <button type="submit" class="text-sm text-red-600 hover:underline">{{ __('Cancel') }}</button>
+                                            </form>
+                                        @endcan
+                                    </div>
+                                </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="px-4 py-6 text-center text-gray-500">{{ __('No orders match the filter.') }}</td>
+                                <td colspan="6" class="px-4 py-6 text-center text-gray-500">{{ __('No orders match the filter.') }}</td>
                             </tr>
                         @endforelse
                     </tbody>

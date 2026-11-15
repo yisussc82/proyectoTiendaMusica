@@ -28,4 +28,15 @@ class Category extends Model
     {
         return $this->hasMany(Product::class);
     }
+
+    public static function treeOptions(): array
+    {
+        return self::whereNull('parent_id')
+            ->with('children')
+            ->orderBy('name')
+            ->get()
+            ->flatMap(fn (Category $parent) => [$parent->slug => $parent->name]
+                + $parent->children->mapWithKeys(fn (Category $child) => [$child->slug => "— {$child->name}"])->all())
+            ->all();
+    }
 }

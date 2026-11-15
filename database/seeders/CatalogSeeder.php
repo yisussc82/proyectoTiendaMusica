@@ -39,5 +39,20 @@ class CatalogSeeder extends Seeder
                     ->create();
             }
         }
+
+        $this->addExampleStates();
+    }
+
+    private function addExampleStates(): void
+    {
+        $products = Product::orderBy('id')->get();
+
+        $products->slice(0, 6)->each(fn (Product $product) => $product->update([
+            'discount_price' => round($product->price * 0.8, 2),
+        ]));
+
+        $products->slice(6, 3)->each(fn (Product $product) => $product->update(['is_active' => false]));
+
+        $products->slice(9, 2)->each(fn (Product $product) => $product->delete());
     }
 }

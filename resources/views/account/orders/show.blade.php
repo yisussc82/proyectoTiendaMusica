@@ -15,7 +15,7 @@
         <div class="max-w-5xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white shadow sm:rounded-lg p-6">
                 <p class="text-sm text-gray-600">
-                    {{ $order->created_at->format('d/m/Y') }} · {{ __(ucfirst($order->status->value)) }}
+                    {{ $order->created_at->format('d/m/Y') }} · {{ $order->status->label() }}
                 </p>
 
                 <table class="mt-4 w-full text-sm">

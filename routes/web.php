@@ -3,6 +3,8 @@
 use App\Http\Controllers\Account\AddressController;
 use App\Http\Controllers\Account\OrderController as AccountOrderController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Panel\ClientController;
+use App\Http\Controllers\Panel\MaintenanceController;
 use App\Http\Controllers\Panel\OrderController as PanelOrderController;
 use App\Http\Controllers\Shop\CatalogController;
 use Illuminate\Support\Facades\Route;
@@ -34,8 +36,23 @@ Route::middleware([
         ->name('panel.')
         ->group(function () {
             Route::view('/', 'panel.dashboard')->name('dashboard');
-            Route::get('/orders', [PanelOrderController::class, 'index'])
-                ->middleware('role:admin,warehouse,support')
-                ->name('orders.index');
+
+            Route::middleware('role:admin,warehouse,support')->group(function () {
+                Route::get('/orders', [PanelOrderController::class, 'index'])->name('orders.index');
+                Route::patch('/orders/{order}/status', [PanelOrderController::class, 'updateStatus'])->name('orders.status');
+                Route::post('/orders/{order}/cancel', [PanelOrderController::class, 'cancel'])->name('orders.cancel');
+            });
+
+            Route::get('/clients', [ClientController::class, 'index'])
+                ->middleware('role:admin,support')
+                ->name('clients.index');
+
+            Route::middleware('role:admin')
+                ->prefix('maintenance')
+                ->name('maintenance.')
+                ->group(function () {
+                    Route::post('/cancel-stale-orders', [MaintenanceController::class, 'cancelStaleOrders'])->name('cancel-stale-orders');
+                    Route::post('/refresh-featured', [MaintenanceController::class, 'refreshFeatured'])->name('refresh-featured');
+                });
         });
 });

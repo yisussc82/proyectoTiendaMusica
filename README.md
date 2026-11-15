@@ -1,58 +1,72 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Tienda de música — TFG DAW
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Tienda online de instrumentos y material de audio hecha con Laravel. Tiene una zona pública (catálogo), una zona para clientes (direcciones y pedidos) y un panel de gestión para el personal de la tienda.
 
-## About Laravel
+## Tecnologías
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+| Parte | Versión |
+| --- | --- |
+| PHP | 8.3 o superior |
+| Laravel | 13 |
+| Autenticación | Jetstream con Livewire 3 (Fortify por debajo) y Sanctum para la API |
+| Base de datos | MySQL 8 en desarrollo; SQLite en memoria para las pruebas |
+| Pruebas | Pest |
+| Estilos | Tailwind CSS con Vite |
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Se necesita tener instalados PHP, Composer, Node.js (22 o superior) y MySQL. En Windows se ha usado Laravel Herd.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Instalación desde cero
 
-## Learning Laravel
+1. Clonar el repositorio y entrar en la carpeta.
+2. Instalar las dependencias:
+   ```
+   composer install
+   npm install
+   npm run build
+   ```
+3. Crear el archivo de configuración y la clave:
+   ```
+   cp .env.example .env
+   php artisan key:generate
+   ```
+4. Crear en MySQL una base de datos vacía llamada `proyectophp` y, si hace falta, cambiar usuario y contraseña en `.env` (`DB_USERNAME` y `DB_PASSWORD`).
+5. Crear las tablas y cargar los datos de prueba:
+   ```
+   php artisan migrate:fresh --seed
+   ```
+6. Ejecutar las pruebas:
+   ```
+   php artisan test
+   ```
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Los datos de prueba se generan con una semilla fija (`fake()->seed(2026)` en `DatabaseSeeder`) y con `APP_FAKER_LOCALE=es_ES`, así que cada reconstrucción crea los mismos datos.
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Usuarios de prueba
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+Todos tienen la contraseña `password`.
 
-## Agentic Development
+| Email | Rol | Zona |
+| --- | --- | --- |
+| `admin@musicstore.test` | Administración | Panel (todo) |
+| `catalog@musicstore.test` | Catálogo | Panel |
+| `warehouse@musicstore.test` | Almacén | Panel: pedidos |
+| `support@musicstore.test` | Atención al cliente | Panel: pedidos y clientes |
+| `customer@musicstore.test` | Cliente | Mi cuenta |
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Datos de ejemplo
 
-```bash
-composer require laravel/boost --dev
+- 5 categorías, 12 subcategorías y 72 productos, cada uno con 3 imágenes.
+- Productos en distintos estados: al menos 6 con oferta, 3 desactivados (no visibles en la tienda) y 2 retirados con borrado lógico.
+- 21 clientes con 2 direcciones cada uno, carrito, lista de deseos y pedidos en distintos estados.
+- El cliente de prueba tiene siempre un pedido pendiente, uno pagado y un producto en la lista de deseos con aviso de descuento.
 
-php artisan boost:install
-```
+## Comandos propios
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+| Comando | Qué hace |
+| --- | --- |
+| `php artisan orders:cancel-stale --hours=48` | Cancela los pedidos pendientes más antiguos que las horas indicadas |
+| `php artisan catalog:refresh-featured --limit=8` | Marca como destacados los productos más vendidos |
+| `php artisan products:low-stock --threshold=5` | Lista los productos con poco stock |
+| `php artisan customers:top --min=500` | Lista los clientes que han gastado al menos esa cantidad |
 
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Los dos primeros también se pueden lanzar desde el panel del administrador y están programados en `routes/console.php`.

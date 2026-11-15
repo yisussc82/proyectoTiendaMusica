@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
+use InvalidArgumentException;
 use LogicException;
 
 #[Fillable([
@@ -35,7 +36,7 @@ class Order extends Model
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class)->withTrashed();
     }
 
     public function items(): HasMany
@@ -53,6 +54,18 @@ class Order extends Model
 
     public function addProduct(Product $product, int $quantity = 1): void
     {
+        if ($quantity < 1) {
+            throw new InvalidArgumentException('La cantidad debe ser al menos 1.');
+        }
+
+        $existingLine = $this->items()->where('product_id', $product->id)->first();
+
+        if ($existingLine) {
+            $existingLine->increment('quantity', $quantity);
+
+            return;
+        }
+
         $this->products()->attach($product->id, [
             'name_at_sale' => $product->name,
             'price_at_sale' => $product->final_price,

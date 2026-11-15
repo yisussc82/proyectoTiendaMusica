@@ -22,7 +22,7 @@
                                     <a href="{{ route('account.orders.show', $order) }}" class="text-indigo-600 hover:underline">{{ $order->order_number }}</a>
                                 </td>
                                 <td class="px-4 py-3">{{ $order->created_at->format('d/m/Y') }}</td>
-                                <td class="px-4 py-3">{{ __(ucfirst($order->status->value)) }}</td>
+                                <td class="px-4 py-3">{{ $order->status->label() }}</td>
                                 <td class="px-4 py-3 text-right"><x-price :amount="$order->total" /></td>
                             </tr>
                         @empty

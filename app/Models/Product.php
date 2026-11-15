@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Enums\OrderStatus;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -68,5 +70,50 @@ class Product extends Model
     protected function finalPrice(): Attribute
     {
         return Attribute::get(fn () => $this->discount_price ?? $this->price);
+    }
+
+    public function scopeActive(Builder $query): void
+    {
+        $query->where('is_active', true);
+    }
+
+    public function scopeInStock(Builder $query): void
+    {
+        $query->where('stock', '>', 0);
+    }
+
+    public function scopeOnSale(Builder $query): void
+    {
+        $query->whereNotNull('discount_price')->whereColumn('discount_price', '<', 'price');
+    }
+
+    public function scopeSearch(Builder $query, ?string $term): void
+    {
+        if (blank($term)) {
+            return;
+        }
+
+        $query->where(function (Builder $query) use ($term) {
+            $query->where('name', 'like', "%{$term}%")
+                ->orWhere('brand', 'like', "%{$term}%")
+                ->orWhere('sku', 'like', "%{$term}%")
+                ->orWhereHas('category', fn (Builder $category) => $category->where('name', 'like', "%{$term}%"));
+        });
+    }
+
+    public function scopeInCategoryTree(Builder $query, Category $category): void
+    {
+        $categoryIds = $category->children()->pluck('id')->push($category->id);
+
+        $query->whereIn('category_id', $categoryIds);
+    }
+
+    public function scopeBestSelling(Builder $query): void
+    {
+        $notCancelled = fn ($order) => $order->where('status', '!=', OrderStatus::Cancelled);
+
+        $query->whereHas('orderItems.order', $notCancelled)
+            ->withSum(['orderItems as units_sold' => fn ($items) => $items->whereHas('order', $notCancelled)], 'quantity')
+            ->orderByDesc('units_sold');
     }
 }

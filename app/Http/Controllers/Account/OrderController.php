@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Account;
 
+use App\Enums\OrderStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Services\OrderStatusService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -27,11 +29,11 @@ class OrderController extends Controller
         return view('account.orders.show', ['order' => $order]);
     }
 
-    public function cancel(Order $order): RedirectResponse
+    public function cancel(Order $order, OrderStatusService $orderStatus): RedirectResponse
     {
         Gate::authorize('cancel', $order);
 
-        $order->cancel();
+        $orderStatus->change($order, OrderStatus::Cancelled);
 
         return redirect()->route('account.orders.show', $order)
             ->with('flash.banner', __('Order cancelled.'));

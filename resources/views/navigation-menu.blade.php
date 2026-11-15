@@ -28,6 +28,11 @@
                             {{ __('Orders') }}
                         </x-nav-link>
                     @endcan
+                    @can('viewAny', App\Models\Client::class)
+                        <x-nav-link href="{{ route('panel.clients.index') }}" :active="request()->routeIs('panel.clients.*')">
+                            {{ __('Clients') }}
+                        </x-nav-link>
+                    @endcan
                 </div>
             </div>
 
@@ -166,6 +171,11 @@
             @can('viewAny', App\Models\Order::class)
                 <x-responsive-nav-link href="{{ route('panel.orders.index') }}" :active="request()->routeIs('panel.orders.*')">
                     {{ __('Orders') }}
+                </x-responsive-nav-link>
+            @endcan
+            @can('viewAny', App\Models\Client::class)
+                <x-responsive-nav-link href="{{ route('panel.clients.index') }}" :active="request()->routeIs('panel.clients.*')">
+                    {{ __('Clients') }}
                 </x-responsive-nav-link>
             @endcan
         </div>

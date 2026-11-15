@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Account;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AddressRequest;
 use App\Models\ClientAddress;
+use App\Services\AddressService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -31,13 +32,9 @@ class AddressController extends Controller
         ]);
     }
 
-    public function store(AddressRequest $request): RedirectResponse
+    public function store(AddressRequest $request, AddressService $addresses): RedirectResponse
     {
-        $address = $request->user()->client->addresses()->create($request->validated());
-
-        if ($address->is_default) {
-            $address->markAsDefault();
-        }
+        $addresses->save($request->user()->client, $request->validated());
 
         return redirect()->route('account.addresses.index')
             ->with('flash.banner', __('Address saved.'));
@@ -53,13 +50,9 @@ class AddressController extends Controller
         ]);
     }
 
-    public function update(AddressRequest $request, ClientAddress $address): RedirectResponse
+    public function update(AddressRequest $request, ClientAddress $address, AddressService $addresses): RedirectResponse
     {
-        $address->update($request->validated());
-
-        if ($address->is_default) {
-            $address->markAsDefault();
-        }
+        $addresses->save($address->client, $request->validated(), $address);
 
         return redirect()->route('account.addresses.index')
             ->with('flash.banner', __('Address updated.'));
